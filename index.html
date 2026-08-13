@@ -3,30 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPG de Heróis 2D</title>
+    <title>RPG de Heróis Reais</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
-        <h1>⚔️ RPG de Heróis</h1>
-        
-        <div id="battle-screen">
-            <div class="character" id="hero-card">
-                <h2 id="hero-name">Guerreiro</h2>
-                <p>Vida: <span id="hero-hp">100</span>/100</p>
-            </div>
+        <h1>⚔️ Lendas da História 2D</h1>
+
+        <div id="creation-screen">
+            <h2>Crie seu Herói</h2>
             
-            <div class="character" id="enemy-card">
-                <h2 id="enemy-name">Monstro</h2>
-                <p>Vida: <span id="enemy-hp">60</span>/60</p>
+            <label>Escolha o Herói Real:</label>
+            <select id="hero-select" onchange="updateCreationPreview()">
+                <option value="joana">Joana d'Arc (França)</option>
+                <option value="yasuke">Yasuke (Japão Feudal)</option>
+                <option value="tesla">Nikola Tesla (Sérvia/EUA)</option>
+            </select>
+
+            <label>Tipo de Poder:</label>
+            <select id="power-select">
+                <option value="fogo">🔥 Fogo Sagrado (Ataque Alto)</option>
+                <option value="eletrico">⚡ Descarga Elétrica (Atordoamento)</option>
+                <option value="sombra">🛡️ Defesa Implacável (Mais Vida)</option>
+            </select>
+
+            <label>Cor da Armadura/Traje:</label>
+            <input type="color" id="color-picker" value="#3a86ff" onchange="updateCreationPreview()">
+
+            <div class="preview-box">
+                <p>Aparência do Personagem:</p>
+                <div id="hero-sprite-preview" class="sprite"></div>
             </div>
+
+            <button class="btn-main" onclick="startGame()">Começar Aventura 🚀</button>
         </div>
 
-        <div id="log">Um monstro apareceu! O que você vai fazer?</div>
+        <div id="battle-screen" style="display: none;">
+            <div id="arena">
+                <div class="character-box">
+                    <div id="hero-sprite" class="sprite"></div>
+                    <h3 id="hero-name-display">Herói</h3>
+                    <p>Vida: <span id="hero-hp">100</span>/100</p>
+                </div>
 
-        <div id="actions">
-            <button onclick="attack()">Atacar 🗡️</button>
-            <button onclick="heal()">Curar 🧪</button>
+                <div class="versus">VS</div>
+
+                <div class="character-box">
+                    <div id="enemy-sprite" class="sprite enemy"></div>
+                    <h3 id="enemy-name-display">Inimigo</h3>
+                    <p>Vida: <span id="enemy-hp">80</span>/80</p>
+                </div>
+            </div>
+
+            <div id="log">A batalha começou!</div>
+
+            <div id="actions">
+                <button onclick="attack()">Atacar 🗡️</button>
+                <button onclick="usePower()">Usar Poder ✨</button>
+                <button onclick="heal()">Curar 🧪</button>
+            </div>
         </div>
     </div>
 
