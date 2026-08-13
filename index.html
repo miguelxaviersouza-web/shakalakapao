@@ -3,64 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPG de Heróis Reais</title>
+    <title>Comic Champions 2D - Estilo Tibia</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
-        <h1>⚔️ Lendas da História 2D</h1>
+        <h1>⚡ Comic Champions (Tibia Style)</h1>
 
         <div id="creation-screen">
-            <h2>Crie seu Herói</h2>
-            
-            <label>Escolha o Herói Real:</label>
-            <select id="hero-select" onchange="updateCreationPreview()">
-                <option value="joana">Joana d'Arc (França)</option>
-                <option value="yasuke">Yasuke (Japão Feudal)</option>
-                <option value="tesla">Nikola Tesla (Sérvia/EUA)</option>
+            <h2>Crie seu Herói de HQ</h2>
+
+            <label>Nome do Herói:</label>
+            <input type="text" id="hero-name-input" value="Sombra Urbana" maxlength="15">
+
+            <label>Arquétipo / Classe:</label>
+            <select id="hero-class-select" onchange="updatePreview()">
+                <option value="vigilante">🕵️ Vigilante Tecnológico (Rápido)</option>
+                <option value="mutante">🧬 Mutante Elemental (Poderoso)</option>
+                <option value="alien">👽 Guardião Cósmico (Resistente)</option>
             </select>
 
-            <label>Tipo de Poder:</label>
-            <select id="power-select">
-                <option value="fogo">🔥 Fogo Sagrado (Ataque Alto)</option>
-                <option value="eletrico">⚡ Descarga Elétrica (Atordoamento)</option>
-                <option value="sombra">🛡️ Defesa Implacável (Mais Vida)</option>
+            <label>Estilo de Traje / Formato:</label>
+            <select id="hero-shape-select" onchange="updatePreview()">
+                <option value="standard">Capuz & Máscara (Quadrado)</option>
+                <option value="armored">Armadura Pesada (Losango)</option>
+                <option value="speedster">Aerodinâmico (Círculo)</option>
             </select>
 
-            <label>Cor da Armadura/Traje:</label>
-            <input type="color" id="color-picker" value="#3a86ff" onchange="updateCreationPreview()">
+            <div class="color-group">
+                <div>
+                    <label>Cor Principal:</label>
+                    <input type="color" id="primary-color" value="#00d2d3" onchange="updatePreview()">
+                </div>
+                <div>
+                    <label>Cor do Emblema:</label>
+                    <input type="color" id="accent-color" value="#ff9f43" onchange="updatePreview()">
+                </div>
+            </div>
+
+            <label>Cenário da Missão:</label>
+            <select id="map-select">
+                <option value="city">🏙️ Metrópole em Ruínas</option>
+                <option value="lab">🧪 Laboratório Secreto</option>
+                <option value="space">🌌 Estação Espacial</option>
+            </select>
 
             <div class="preview-box">
-                <p>Aparência do Personagem:</p>
-                <div id="hero-sprite-preview" class="sprite"></div>
+                <p>Visual do Herói:</p>
+                <div id="preview-sprite">
+                    <div id="preview-symbol"></div>
+                </div>
             </div>
 
-            <button class="btn-main" onclick="startGame()">Começar Aventura 🚀</button>
+            <button class="btn-main" onclick="startGame()">Entrar na Arena 🚀</button>
         </div>
 
-        <div id="battle-screen" style="display: none;">
-            <div id="arena">
-                <div class="character-box">
-                    <div id="hero-sprite" class="sprite"></div>
-                    <h3 id="hero-name-display">Herói</h3>
-                    <p>Vida: <span id="hero-hp">100</span>/100</p>
-                </div>
-
-                <div class="versus">VS</div>
-
-                <div class="character-box">
-                    <div id="enemy-sprite" class="sprite enemy"></div>
-                    <h3 id="enemy-name-display">Inimigo</h3>
-                    <p>Vida: <span id="enemy-hp">80</span>/80</p>
-                </div>
+        <div id="game-screen" style="display: none;">
+            <div id="hud">
+                <span id="player-display-name">Herói</span> | 
+                HP: <span id="hp-display">100</span> | 
+                Kills: <span id="score-display">0</span>
             </div>
 
-            <div id="log">A batalha começou!</div>
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
 
-            <div id="actions">
-                <button onclick="attack()">Atacar 🗡️</button>
-                <button onclick="usePower()">Usar Poder ✨</button>
-                <button onclick="heal()">Curar 🧪</button>
+            <div id="controls-hint">
+                <p>🎮 <b>Controles:</b> Use as setas (<b>W, A, S, D</b> ou <b>Setas do teclado</b>) para andar. Clique na tela para disparar um ataque de energia!</p>
             </div>
         </div>
     </div>
