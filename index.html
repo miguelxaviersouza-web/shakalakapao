@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG de Heróis 2D</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <h1>⚔️ RPG de Heróis</h1>
+        
+        <div id="battle-screen">
+            <div class="character" id="hero-card">
+                <h2 id="hero-name">Guerreiro</h2>
+                <p>Vida: <span id="hero-hp">100</span>/100</p>
+            </div>
+            
+            <div class="character" id="enemy-card">
+                <h2 id="enemy-name">Monstro</h2>
+                <p>Vida: <span id="enemy-hp">60</span>/60</p>
+            </div>
+        </div>
+
+        <div id="log">Um monstro apareceu! O que você vai fazer?</div>
+
+        <div id="actions">
+            <button onclick="attack()">Atacar 🗡️</button>
+            <button onclick="heal()">Curar 🧪</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
