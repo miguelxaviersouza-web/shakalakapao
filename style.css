@@ -1,0 +1,133 @@
+body {
+    background-color: #0f172a;
+    color: #f8fafc;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+#game-container {
+    background-color: #1e293b;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    text-align: center;
+    width: 380px;
+}
+
+h1 {
+    color: #f59e0b;
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
+/* Formulário de Criação */
+#creation-screen {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-align: left;
+}
+
+label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #cbd5e1;
+}
+
+select, input[type="color"] {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #475569;
+    background-color: #334155;
+    color: white;
+    box-sizing: border-box;
+}
+
+input[type="color"] {
+    height: 40px;
+    cursor: pointer;
+}
+
+.preview-box {
+    text-align: center;
+    background-color: #0f172a;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+/* Visual 2D Pixel-Art (CSS) */
+.sprite {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto;
+    border-radius: 8px;
+    border: 3px solid #ffffff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    transition: transform 0.2s;
+}
+
+.enemy {
+    background-color: #ef4444;
+    border-color: #7f1d1d;
+    clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+}
+
+/* Arena de Batalha */
+#arena {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.character-box {
+    width: 40%;
+}
+
+.versus {
+    font-weight: bold;
+    color: #ef4444;
+    font-size: 20px;
+}
+
+#log {
+    background-color: #0f172a;
+    padding: 12px;
+    min-height: 45px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Botões */
+button {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+button:hover {
+    filter: brightness(1.2);
+}
+
+.btn-main {
+    background-color: #10b981;
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+}
