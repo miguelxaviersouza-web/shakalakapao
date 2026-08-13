@@ -1,144 +1,228 @@
-// Dados dos Heróis Reais
-const realHeroes = {
-    joana: { name: "Joana d'Arc", shape: "circle(50% at 50% 50%)" },
-    yasuke: { name: "Samurai Yasuke", shape: "polygon(50% 0%, 100% 100%, 0% 100%)" },
-    tesla: { name: "Nikola Tesla", shape: "polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%)" }
-};
+// Configurações do Canvas e Jogo
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
 let hero = {
-    name: "",
-    power: "",
-    color: "",
-    maxHp: 100,
+    x: 200,
+    y: 200,
+    size: 20,
+    speed: 3,
     hp: 100,
-    atk: 12
+    name: "",
+    primaryColor: "",
+    accentColor: "",
+    shape: "",
+    score: 0
 };
 
-let enemy = {
-    name: "Autômato Antigo",
-    maxHp: 80,
-    hp: 80,
-    atk: 10
-};
+let enemies = [];
+let bullets = [];
+let mapType = "city";
+let keys = {};
 
-// Atualiza a prévia do visual do personagem
-function updateCreationPreview() {
-    const heroKey = document.getElementById('hero-select').value;
-    const color = document.getElementById('color-picker').value;
-    const preview = document.getElementById('hero-sprite-preview');
+// Atualiza a prévia visual no menu
+function updatePreview() {
+    const shape = document.getElementById('hero-shape-select').value;
+    const pColor = document.getElementById('primary-color').value;
+    const aColor = document.getElementById('accent-color').value;
+    const sprite = document.getElementById('preview-sprite');
+    const symbol = document.getElementById('preview-symbol');
 
-    preview.style.backgroundColor = color;
-    preview.style.clipPath = realHeroes[heroKey].shape;
+    sprite.style.backgroundColor = pColor;
+    symbol.style.backgroundColor = aColor;
+
+    if (shape === "speedster") {
+        sprite.style.borderRadius = "50%";
+    } else if (shape === "armored") {
+        sprite.style.borderRadius = "0px";
+        sprite.style.transform = "rotate(45deg)";
+    } else {
+        sprite.style.borderRadius = "4px";
+        sprite.style.transform = "rotate(0deg)";
+    }
 }
 
-// Inicializa a prévia na abertura da página
-updateCreationPreview();
+updatePreview();
 
 function startGame() {
-    const heroKey = document.getElementById('hero-select').value;
-    const power = document.getElementById('power-select').value;
-    const color = document.getElementById('color-picker').value;
+    hero.name = document.getElementById('hero-name-input').value || "Herói";
+    hero.primaryColor = document.getElementById('primary-color').value;
+    hero.accentColor = document.getElementById('accent-color').value;
+    hero.shape = document.getElementById('hero-shape-select').value;
+    mapType = document.getElementById('map-select').value;
 
-    hero.name = realHeroes[heroKey].name;
-    hero.power = power;
-    hero.color = color;
-
-    // Bônus de acordo com o Poder Escolhido
-    if (power === "sombra") {
-        hero.maxHp = 130;
-        hero.hp = 130;
-    } else if (power === "fogo") {
-        hero.atk = 18;
-    }
-
-    // Configura o Sprite da batalha
-    const heroSprite = document.getElementById('hero-sprite');
-    heroSprite.style.backgroundColor = color;
-    heroSprite.style.clipPath = realHeroes[heroKey].shape;
-
-    document.getElementById('hero-name-display').innerText = hero.name;
-
-    // Alterna a tela
+    document.getElementById('player-display-name').innerText = hero.name;
     document.getElementById('creation-screen').style.display = 'none';
-    document.getElementById('battle-screen').style.display = 'block';
+    document.getElementById('game-screen').style.display = 'block';
 
-    updateUI();
+    // Eventos de Teclado e Mouse
+    window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+    window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+    canvas.addEventListener('click', shootBullet);
+
+    // Gerar Inimigos (Vilões da HQ)
+    for (let i = 0; i < 4; i++) spawnEnemy();
+
+    // Loop do Jogo
+    requestAnimationFrame(gameLoop);
 }
 
-function updateUI() {
-    document.getElementById('hero-hp').innerText = Math.max(0, hero.hp);
-    document.getElementById('enemy-hp').innerText = Math.max(0, enemy.hp);
+function spawnEnemy() {
+    enemies.push({
+        x: Math.random() * (canvas.width - 40) + 20,
+        y: Math.random() * (canvas.height - 40) + 20,
+        size: 18,
+        speed: 1 + Math.random() * 1.2,
+        hp: 30
+    });
 }
 
-function logMessage(msg) {
-    document.getElementById('log').innerText = msg;
+function shootBullet(e) {
+    const rect = canvas.getBoundingClientRect();
+    const targetX = e.clientX - rect.left;
+    const targetY = e.clientY - rect.top;
+
+    const angle = Math.atan2(targetY - hero.y, targetX - hero.x);
+
+    bullets.push({
+        x: hero.x,
+        y: hero.y,
+        dx: Math.cos(angle) * 6,
+        dy: Math.sin(angle) * 6,
+        size: 5
+    });
 }
 
-function attack() {
-    if (enemy.hp <= 0 || hero.hp <= 0) return;
+function updateGame() {
+    if (hero.hp <= 0) return;
 
-    let damage = Math.floor(Math.random() * 8) + hero.atk;
-    enemy.hp -= damage;
-    updateUI();
+    // Movimentação Estilo Tibia (8 direções)
+    if (keys['w'] || keys['arrowup']) hero.y = Math.max(hero.size, hero.y - hero.speed);
+    if (keys['s'] || keys['arrowdown']) hero.y = Math.min(canvas.height - hero.size, hero.y + hero.speed);
+    if (keys['a'] || keys['arrowleft']) hero.x = Math.max(hero.size, hero.x - hero.speed);
+    if (keys['d'] || keys['arrowright']) hero.x = Math.min(canvas.width - hero.size, hero.x + hero.speed);
 
-    if (enemy.hp <= 0) {
-        logMessage(`💥 ${hero.name} causou ${damage} de dano e venceu a batalha! 🎉`);
-        return;
+    // Mover Projéteis
+    bullets.forEach((b, index) => {
+        b.x += b.dx;
+        b.y += b.dy;
+
+        // Remover projéteis fora da tela
+        if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
+            bullets.splice(index, 1);
+        }
+    });
+
+    // Mover Inimigos em direção ao Herói
+    enemies.forEach((enemy, eIndex) => {
+        const angle = Math.atan2(hero.y - enemy.y, hero.x - enemy.x);
+        enemy.x += Math.cos(angle) * enemy.speed;
+        enemy.y += Math.sin(angle) * enemy.speed;
+
+        // Colisão com o Herói
+        const dist = Math.hypot(hero.x - enemy.x, hero.y - enemy.y);
+        if (dist < hero.size + enemy.size) {
+            hero.hp -= 0.5;
+            document.getElementById('hp-display').innerText = Math.max(0, Math.floor(hero.hp));
+        }
+
+        // Colisão de Tiros com Inimigos
+        bullets.forEach((bullet, bIndex) => {
+            const bDist = Math.hypot(bullet.x - enemy.x, bullet.y - enemy.y);
+            if (bDist < bullet.size + enemy.size) {
+                enemy.hp -= 15;
+                bullets.splice(bIndex, 1);
+
+                if (enemy.hp <= 0) {
+                    enemies.splice(eIndex, 1);
+                    hero.score++;
+                    document.getElementById('score-display').innerText = hero.score;
+                    spawnEnemy(); // Respawn estilo Tibia
+                }
+            }
+        });
+    });
+}
+
+function drawGame() {
+    // Desenhar Cenário
+    if (mapType === "city") ctx.fillStyle = "#2d3748";
+    else if (mapType === "lab") ctx.fillStyle = "#1e1b4b";
+    else ctx.fillStyle = "#090d16";
+
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Grade de fundo (Estilo Tiles de Tibia)
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+    for (let x = 0; x < canvas.width; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+    }
+    for (let y = 0; y < canvas.height; y += 40) {
+        ctx.beginPath();
+        ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
+        ctx.stroke();
     }
 
-    logMessage(`🗡️ Você atacou e causou ${damage} de dano!`);
-    setTimeout(enemyTurn, 1000);
-}
+    // Desenhar Projéteis
+    ctx.fillStyle = hero.accentColor;
+    bullets.forEach(b => {
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
+        ctx.fill();
+    });
 
-function usePower() {
-    if (enemy.hp <= 0 || hero.hp <= 0) return;
+    // Desenhar Inimigos (Capangas / Vilões de HQ)
+    ctx.fillStyle = "#e11d48";
+    enemies.forEach(enemy => {
+        ctx.beginPath();
+        ctx.arc(enemy.x, enemy.y, enemy.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#881337";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+    });
 
-    let damage = 0;
-    if (hero.power === "fogo") {
-        damage = Math.floor(Math.random() * 12) + 20;
-        enemy.hp -= damage;
-        logMessage(`🔥 Poder de Fogo! Você causou ${damage} de dano massivo!`);
-    } else if (hero.power === "eletrico") {
-        damage = Math.floor(Math.random() * 6) + 10;
-        enemy.hp -= damage;
-        logMessage(`⚡ Choque Elétrico! ${damage} de dano e o inimigo perde o turno!`);
-        updateUI();
-        return; // O inimigo não ataca neste turno
+    // Desenhar Herói Customizado
+    ctx.save();
+    ctx.translate(hero.x, hero.y);
+
+    ctx.fillStyle = hero.primaryColor;
+    if (hero.shape === "speedster") {
+        ctx.beginPath();
+        ctx.arc(0, 0, hero.size, 0, Math.PI * 2);
+        ctx.fill();
+    } else if (hero.shape === "armored") {
+        ctx.rotate(Math.PI / 4);
+        ctx.fillRect(-hero.size / 1.2, -hero.size / 1.2, hero.size * 1.5, hero.size * 1.5);
+        ctx.rotate(-Math.PI / 4);
     } else {
-        damage = Math.floor(Math.random() * 8) + 12;
-        enemy.hp -= damage;
-        logMessage(`🛡️ Ataque com Escudo! Causou ${damage} de dano!`);
+        ctx.fillRect(-hero.size, -hero.size, hero.size * 2, hero.size * 2);
     }
 
-    updateUI();
+    // Emblema Central do Herói
+    ctx.fillStyle = hero.accentColor;
+    ctx.beginPath();
+    ctx.arc(0, 0, hero.size / 2.5, 0, Math.PI * 2);
+    ctx.fill();
 
-    if (enemy.hp <= 0) {
-        logMessage(`💥 ${hero.name} venceu a batalha! 🎉`);
-        return;
-    }
+    ctx.restore();
 
-    setTimeout(enemyTurn, 1000);
-}
-
-function heal() {
-    if (enemy.hp <= 0 || hero.hp <= 0) return;
-
-    let healAmount = Math.floor(Math.random() * 15) + 15;
-    hero.hp = Math.min(hero.maxHp, hero.hp + healAmount);
-    updateUI();
-
-    logMessage(`🧪 Você recuperou ${healAmount} de vida!`);
-    setTimeout(enemyTurn, 1000);
-}
-
-function enemyTurn() {
-    let damage = Math.floor(Math.random() * 6) + enemy.atk;
-    hero.hp -= damage;
-    updateUI();
-
+    // Game Over
     if (hero.hp <= 0) {
-        logMessage(`💀 ${hero.name} foi derrotado em combate...`);
-    } else {
-        logMessage(`👹 O ${enemy.name} atacou e causou ${damage} de dano!`);
+        ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "#ef4444";
+        ctx.font = "24px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("HERÓI DERROTADO!", canvas.width / 2, canvas.height / 2);
     }
+}
+
+function gameLoop() {
+    updateGame();
+    drawGame();
+    if (hero.hp > 0) requestAnimationFrame(gameLoop);
 }
